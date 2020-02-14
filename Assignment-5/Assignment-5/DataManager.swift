@@ -50,18 +50,23 @@ class DataManager {
         }
     }
     func saveFavorites(_ name: String) {
+        // has to be done this way, cannot read from self.favList directly
+        self.favList = self.defaults.object(forKey: "FavList") as! [String]
         self.favList.append(name)
         self.defaults.set(favList, forKey: "FavList")
         print(favList)
         
     }
     func deleteFavorite(_ name: String) {
+        self.favList = self.defaults.object(forKey: "FavList") as! [String]
         if let index = favList.firstIndex(of: name) {
             self.favList.remove(at: index)
             self.defaults.set(favList, forKey: "FavList")
         }
         print(favList)
     }
+    
+    // no need to implement
     func listFavorites() {}
     
 }

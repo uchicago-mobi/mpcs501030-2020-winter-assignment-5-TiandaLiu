@@ -30,11 +30,23 @@ class MapViewController: UIViewController {
         mapView.showsCompass = false
         mapView.pointOfInterestFilter = .excludingAll
         
+        // location manager
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        self.askPermissions()
+        
         // load data from Data.plist
         dataManager.loadAnnotationFromPlist()
         for location in dataManager.places.values {
             location.title = location.name
             mapView.addAnnotation(location)
+            
+            // add region
+            let region = CLCircularRegion(center: location.coordinate, radius: 300, identifier: location.name!)
+            region.notifyOnEntry = true
+            region.notifyOnExit = true
+            locationManager.startMonitoring(for: region)
         }
         
         // initial place
@@ -49,7 +61,6 @@ class MapViewController: UIViewController {
         // add listener to starButton
         self.starButton.addTarget(self, action: #selector(handleStartaped(_:)), for: .touchUpInside)
         self.starButton.tintColor = UIColor.orange
-        
         
     }
     
@@ -138,6 +149,34 @@ extension MapViewController: PlacesFavoritesDelegate {
     }
 }
 
+extension MapViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager,
+                         didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedAlways, .authorizedWhenInUse:
+            return
+        case .notDetermined:
+            manager.requestWhenInUseAuthorization()
+        default:
+            manager.requestWhenInUseAuthorization()
+        }
+    }
 
+    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        print("Enter region!")
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        print("Exit region!")
+    }
 
-
+    func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion){
+        if state == CLRegionState.inside {
+            print("Entering...")
+            let alert = UIAlertController(title: "Close to Interest Point", message: "Interest Point", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true)
+        }
+        
+    }
+}
