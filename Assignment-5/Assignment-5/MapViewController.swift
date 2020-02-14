@@ -36,6 +36,7 @@ class MapViewController: UIViewController {
         locationManager.requestWhenInUseAuthorization()
         self.askPermissions()
         
+        
         // load data from Data.plist
         dataManager.loadAnnotationFromPlist()
         for location in dataManager.places.values {
@@ -43,7 +44,7 @@ class MapViewController: UIViewController {
             mapView.addAnnotation(location)
             
             // add region
-            let region = CLCircularRegion(center: location.coordinate, radius: 300, identifier: location.name!)
+            let region = CLCircularRegion(center: location.coordinate, radius: 500, identifier: location.name!)
             region.notifyOnEntry = true
             region.notifyOnExit = true
             locationManager.startMonitoring(for: region)
@@ -173,7 +174,7 @@ extension MapViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion){
         if state == CLRegionState.inside {
             print("Entering...")
-            let alert = UIAlertController(title: "Close to Interest Point", message: "Interest Point", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Close to Interest Point", message: region.identifier, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             self.present(alert, animated: true)
         }

@@ -47,6 +47,7 @@ class DataManager {
                 places[place.name] = annotation
             }
             self.initRegion = data.region
+            self.defaults.set(favList, forKey: "FavList")
         }
     }
     func saveFavorites(_ name: String) {
